@@ -37,6 +37,7 @@
     .btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.3px; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,95,0.3); }
     .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .btn-secondary { padding: 11px 20px; background: var(--bg); color: var(--navy); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .btn-secondary:hover { border-color: var(--navy-mid); background: white; }
     .btn-danger { padding: 11px 20px; background: var(--coral-pale); color: var(--coral); border: 1.5px solid rgba(232,84,106,0.2); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
@@ -209,7 +210,7 @@
     <form id="login-form">
       <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="votre@email.com" required autocomplete="email" /></div>
       <div class="form-group"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" /></div>
-      <button type="submit" class="btn-primary">Se connecter</button>
+      <button type="submit" class="btn-primary" id="btn-login">Se connecter</button>
       <p class="error-msg" id="login-error"></p>
     </form>
   </div>
@@ -295,7 +296,6 @@
     </div>
 
     <div id="screen-reunion-detail" class="screen-content"><div id="reunion-detail-content"></div></div>
-
     <div id="screen-cr" class="screen-content"><div id="cr-content"></div></div>
 
     <div id="screen-dossiers" class="screen-content">
@@ -401,39 +401,64 @@
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUser = null, allReunions = [], allDossiers = [], currentScreen = 'dashboard';
-  let appShown = false;
 
-  db.auth.onAuthStateChange((event, session) => {
-    if (session && !appShown) {
+  // ✅ CORRECTION PRINCIPALE : restauration de session au chargement de la page
+  (async () => {
+    const {  { session } } = await db.auth.getSession();
+    if (session) {
       currentUser = session.user;
-      appShown = true;
       showApp();
-    } else if (event === 'SIGNED_OUT') {
-      appShown = false;
+    }
+  })();
+
+  // ✅ Écoute les changements de session (déconnexion, expiration token)
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
       currentUser = null;
       document.getElementById('app').classList.add('hidden');
       document.getElementById('screen-login').style.display = 'flex';
       document.getElementById('login-password').value = '';
     }
+    if (event === 'TOKEN_REFRESHED' && session) {
+      currentUser = session.user;
+    }
   });
 
+  // ✅ CORRECTION PRINCIPALE : login géré directement dans le formulaire, sans dépendre de onAuthStateChange
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = document.getElementById('btn-login');
     const email = document.getElementById('login-email').value.trim();
     const pass  = document.getElementById('login-password').value;
     document.getElementById('login-error').textContent = '';
-    const { error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) document.getElementById('login-error').textContent = 'Email ou mot de passe incorrect.';
+    btn.disabled = true;
+    btn.textContent = 'Connexion en cours…';
+
+    const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+
+    if (error) {
+      document.getElementById('login-error').textContent = 'Email ou mot de passe incorrect.';
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+      return;
+    }
+
+    // ✅ Session disponible immédiatement ici — on affiche l'app directement
+    currentUser = data.session.user;
+    showApp();
   });
 
-  document.getElementById('btn-logout').addEventListener('click', async () => { await db.auth.signOut(); });
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await db.auth.signOut();
+  });
 
   function showApp() {
     document.getElementById('screen-login').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
+    const btn = document.getElementById('btn-login');
+    btn.disabled = false;
+    btn.textContent = 'Se connecter';
     showScreen('dashboard');
-    // ✅ loadDashboard appelé ici directement après onAuthStateChange — session garantie
-    loadDashboard();
   }
 
   const screenTitles = {
@@ -460,7 +485,6 @@
     };
     if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
     document.getElementById('btn-fab').classList.toggle('hidden', name !== 'reunions' && name !== 'dossiers');
-    // ✅ Rechargement à chaque navigation — dashboard inclus
     if (name === 'dashboard') loadDashboard();
     if (name === 'reunions')  loadReunions();
     if (name === 'dossiers')  loadDossiers();
@@ -492,11 +516,8 @@
     return m[s] || `<span class="pill">${s}</span>`;
   }
 
-  // ✅ CORRECTION DASHBOARD : vérification session avant chaque requête
   async function loadDashboard() {
-    const {  { session } } = await db.auth.getSession();
-    if (!session) { setTimeout(() => loadDashboard(), 300); return; }
-
+    if (!currentUser) return;
     const {  r } = await db.from('reunions').select('*').order('date', { ascending: true });
     const {  d } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
     allReunions = r || []; allDossiers = d || [];
