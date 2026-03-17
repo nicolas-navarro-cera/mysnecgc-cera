@@ -1,6 +1,6 @@
 // CONFIG SUPABASE - à remplir après création du projet Supabase
-const SUPABASE_URL = 'REMPLACER_PAR_TON_URL';
-const SUPABASE_KEY = 'REMPLACER_PAR_TA_CLE';
+const SUPABASE_URL = 'https://tfiwxtxhiblmqzdlpulf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__Xdsf_yymPy8nJzDV-xScw_XJNPjiMR';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
