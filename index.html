@@ -1,261 +1,977 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MySNECGC">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="MySNECGC CERA" />
   <title>MySNECGC CERA</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #1a3a6b;
+      --primary-light: #2a5298;
+      --secondary: #c8a012;
+      --danger: #c0392b;
+      --success: #27ae60;
+      --warning: #e67e22;
+      --bg: #f0f2f7;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text-light: #6b7280;
+      --border: #e5e7eb;
+      --radius: 14px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    #screen-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(145deg, var(--primary) 0%, var(--primary-light) 100%);
+      padding: 24px;
+    }
+    .login-card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 24px;
+      padding: 40px 28px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+    .login-logo { font-size: 48px; margin-bottom: 10px; }
+    .login-title { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .login-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 28px; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--text-light); display: block; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fafafa;
+      color: var(--text);
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .btn-primary:active { transform: scale(0.98); background: var(--primary-light); }
+    .btn-secondary {
+      padding: 10px 18px;
+      background: var(--bg);
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-danger {
+      padding: 10px 18px;
+      background: #fef2f2;
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-fab {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+    #app.hidden { display: none; }
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .top-bar h1 { font-size: 17px; font-weight: 700; flex: 1; }
+    .btn-icon {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+    }
+    .btn-icon:active { background: rgba(255,255,255,0.15); }
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      display: flex;
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      border: none;
+      background: none;
+      gap: 3px;
+      transition: color 0.2s;
+    }
+    .nav-item .nav-icon { font-size: 20px; }
+    .nav-item.active { color: var(--primary); }
+    .screen-content { display: none; }
+    .screen-content.active { display: block; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .stat-number { font-size: 32px; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 12px; color: var(--text-light); font-weight: 600; margin-top: 2px; }
+    .reunion-item, .dossier-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      background: var(--card);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .reunion-item:active, .dossier-item:active { transform: scale(0.98); }
+    .item-info { flex: 1; }
+    .item-type { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .item-title { font-size: 13px; color: var(--text-light); margin: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .item-date { font-size: 12px; color: var(--text-light); }
+    .item-badge { font-size: 20px; margin-left: 10px; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+    .btn-filter {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      color: var(--text-light);
+    }
+    .btn-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .detail-header {
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+    }
+    .detail-type { font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .detail-title { font-size: 20px; font-weight: 800; margin: 6px 0; }
+    .detail-date { font-size: 13px; opacity: 0.8; }
+    .detail-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .detail-section h4 { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .detail-section p { font-size: 14px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .detail-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .detail-actions button { flex: 1; }
+    .confidential-notice {
+      background: #fff8e1;
+      border: 1px solid #f0c040;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      color: #7d5a00;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .form-section { margin-bottom: 20px; }
+    .form-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .chat-container { display: flex; flex-direction: column; height: calc(100vh - 180px); }
+    #chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
+    .msg-user {
+      background: var(--primary);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 18px 18px 4px 18px;
+      align-self: flex-end;
+      max-width: 80%;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .msg-ai {
+      background: white;
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 18px 18px 18px 4px;
+      align-self: flex-start;
+      max-width: 88%;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: var(--shadow);
+    }
+    .msg-typing { opacity: 0.6; }
+    .chat-input-bar { display: flex; gap: 10px; margin-top: 12px; }
+    .chat-input-bar input { flex: 1; }
+    .btn-send {
+      padding: 12px 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .doc-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .doc-card:active { transform: scale(0.97); }
+    .doc-icon { font-size: 32px; margin-bottom: 8px; }
+    .doc-name { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .doc-desc { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+    .empty-state { text-align: center; color: var(--text-light); font-size: 14px; padding: 24px; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
-  <div id="screen-login" class="screen active">
-    <div class="login-container">
-      <div class="logo">
-        <div class="logo-icon">⚖️</div>
-        <h1>MySNECGC CERA</h1>
-        <p>Espace élu SNE-CGC</p>
+<!-- LOGIN -->
+<div id="screen-login">
+  <div class="login-card">
+    <div class="login-logo">⚖️</div>
+    <div class="login-title">MySNECGC CERA</div>
+    <div class="login-subtitle">Espace élu SNE-CGC</div>
+    <form id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="votre@email.com" required autocomplete="email" />
       </div>
-      <form id="login-form">
-        <input type="email" id="login-email" placeholder="Email" required>
-        <input type="password" id="login-password" placeholder="Mot de passe" required>
-        <button type="submit" class="btn-primary">Se connecter</button>
-      </form>
-      <div id="login-error" class="error-msg"></div>
-    </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn-primary">Se connecter</button>
+      <p class="error-msg" id="login-error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- APPLICATION -->
+<div id="app" class="hidden">
+
+  <div class="top-bar">
+    <button class="btn-icon hidden" id="btn-back">←</button>
+    <h1 id="page-title">Tableau de bord</h1>
+    <button class="btn-icon" id="btn-logout" title="Déconnexion">⏻</button>
   </div>
 
-  <div id="app" class="hidden">
-    <header>
-      <button id="btn-back" class="btn-back hidden">←</button>
-      <h2 id="page-title">Tableau de bord</h2>
-      <button id="btn-logout" class="btn-icon">⎋</button>
-    </header>
+  <div class="main-content">
 
+    <!-- DASHBOARD -->
     <div id="screen-dashboard" class="screen-content active">
-      <div class="dashboard-grid">
-        <div class="card card-reunions" onclick="showScreen('reunions')">
-          <div class="card-icon">📋</div>
-          <div class="card-label">Réunions</div>
-          <div class="card-sub">CSE &amp; CSSCT</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-reunions">—</div>
+          <div class="stat-label">Réunions</div>
         </div>
-        <div class="card card-dossiers" onclick="showScreen('dossiers')">
-          <div class="card-icon">⚖️</div>
-          <div class="card-label">Dossiers</div>
-          <div class="card-sub">Collaborateurs</div>
-        </div>
-        <div class="card card-assistant" onclick="showScreen('assistant')">
-          <div class="card-icon">🤖</div>
-          <div class="card-label">Assistant</div>
-          <div class="card-sub">Juridique IA</div>
-        </div>
-        <div class="card card-docs" onclick="showScreen('docs')">
-          <div class="card-icon">📁</div>
-          <div class="card-label">Documents</div>
-          <div class="card-sub">Référentiels</div>
+        <div class="stat-card">
+          <div class="stat-number" id="stat-dossiers">—</div>
+          <div class="stat-label">Dossiers actifs</div>
         </div>
       </div>
-      <div class="upcoming-section">
-        <h3>Prochaines réunions</h3>
-        <div id="upcoming-list"><p class="empty-state">Aucune réunion planifiée</p></div>
+      <div class="card">
+        <div class="card-title">📅 Prochaines réunions</div>
+        <div id="upcoming-list"><p class="empty-state">Chargement…</p></div>
       </div>
-      <div class="upcoming-section">
-        <h3>Dossiers ouverts</h3>
-        <div id="open-dossiers-list"><p class="empty-state">Aucun dossier en cours</p></div>
+      <div class="card">
+        <div class="card-title">🔴 Dossiers en cours</div>
+        <div id="open-dossiers-list"><p class="empty-state">Chargement…</p></div>
       </div>
     </div>
 
-    <div id="screen-reunions" class="screen-content hidden">
-      <div class="action-bar">
-        <button class="btn-filter active" onclick="filterReunions('all',this)">Toutes</button>
-        <button class="btn-filter" onclick="filterReunions('CSE',this)">CSE</button>
-        <button class="btn-filter" onclick="filterReunions('CSSCT',this)">CSSCT</button>
+    <!-- RÉUNIONS -->
+    <div id="screen-reunions" class="screen-content">
+      <div class="filter-bar">
+        <button class="btn-filter active" onclick="filterReunions('all', this)">Toutes</button>
+        <button class="btn-filter" onclick="filterReunions('CSE', this)">CSE</button>
+        <button class="btn-filter" onclick="filterReunions('CSSCT', this)">CSSCT</button>
+        <button class="btn-filter" onclick="filterReunions('NAO', this)">NAO</button>
       </div>
       <div id="reunions-list"></div>
-      <button class="fab" onclick="showNewReunion()">+</button>
     </div>
 
-    <div id="screen-reunion-detail" class="screen-content hidden">
+    <!-- FORMULAIRE RÉUNION -->
+    <div id="screen-reunion-form" class="screen-content">
+      <form id="reunion-form">
+        <input type="hidden" id="rf-id" />
+        <div class="form-section">
+          <div class="form-section-title">Informations générales</div>
+          <div class="form-group">
+            <label>Type de réunion</label>
+            <select id="rf-type" required>
+              <option value="CSE ordinaire">CSE ordinaire</option>
+              <option value="CSE extraordinaire">CSE extraordinaire</option>
+              <option value="CSSCT">CSSCT</option>
+              <option value="NAO">NAO</option>
+              <option value="Commission">Commission</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="rf-date" required />
+          </div>
+          <div class="form-group">
+            <label>Heure</label>
+            <input type="time" id="rf-heure" />
+          </div>
+          <div class="form-group">
+            <label>Statut</label>
+            <select id="rf-statut">
+              <option value="Planifiée">Planifiée</option>
+              <option value="En cours">En cours</option>
+              <option value="Terminée">Terminée</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Contenu</div>
+          <div class="form-group">
+            <label>Ordre du jour</label>
+            <textarea id="rf-odj" placeholder="Points à l'ordre du jour…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Déclaration préalable SNE-CGC</label>
+            <textarea id="rf-declaration" placeholder="Déclaration liminaire…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Notes de séance</label>
+            <textarea id="rf-notes" placeholder="Compte rendu, échanges…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Engagements direction</label>
+            <textarea id="rf-engagements" placeholder="Engagements pris par la direction…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Points d'alerte</label>
+            <textarea id="rf-alertes" placeholder="Points à surveiller, suivi…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">💾 Enregistrer</button>
+      </form>
+    </div>
+
+    <!-- DÉTAIL RÉUNION / DOSSIER -->
+    <div id="screen-reunion-detail" class="screen-content">
       <div id="reunion-detail-content"></div>
     </div>
 
-    <div id="screen-reunion-form" class="screen-content hidden">
-      <form id="reunion-form">
-        <div class="form-group">
-          <label>Type de réunion</label>
-          <select id="rf-type" required>
-            <option value="CSE Ordinaire">CSE Ordinaire</option>
-            <option value="CSE Extraordinaire">CSE Extraordinaire</option>
-            <option value="CSSCT">CSSCT</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="rf-date" required>
-        </div>
-        <div class="form-group">
-          <label>Heure</label>
-          <input type="time" id="rf-heure">
-        </div>
-        <div class="form-group">
-          <label>Ordre du jour</label>
-          <textarea id="rf-odj" rows="4" placeholder="Points de l'ordre du jour..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Déclaration préalable SNE-CGC</label>
-          <textarea id="rf-declaration" rows="4" placeholder="Déclaration d'ouverture..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Notes de séance</label>
-          <textarea id="rf-notes" rows="8" placeholder="Vos notes..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Engagements direction</label>
-          <textarea id="rf-engagements" rows="3" placeholder="Engagements pris par la direction..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Points d'alerte</label>
-          <textarea id="rf-alertes" rows="3" placeholder="Points nécessitant une vigilance particulière..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Statut</label>
-          <select id="rf-statut">
-            <option value="Planifiée">📅 Planifiée</option>
-            <option value="En cours">🔄 En cours</option>
-            <option value="Terminée">✅ Terminée</option>
-          </select>
-        </div>
-        <input type="hidden" id="rf-id">
-        <button type="submit" class="btn-primary btn-full">Enregistrer</button>
-      </form>
-    </div>
-
-    <div id="screen-dossiers" class="screen-content hidden">
-      <div class="action-bar">
-        <button class="btn-filter active" onclick="filterDossiers('all',this)">Tous</button>
-        <button class="btn-filter" onclick="filterDossiers('Ouvert',this)">Ouverts</button>
-        <button class="btn-filter" onclick="filterDossiers('Clôturé',this)">Clôturés</button>
+    <!-- DOSSIERS -->
+    <div id="screen-dossiers" class="screen-content">
+      <div class="filter-bar">
+        <button class="btn-filter active" onclick="filterDossiers('all', this)">Tous</button>
+        <button class="btn-filter" onclick="filterDossiers('Ouvert', this)">Ouverts</button>
+        <button class="btn-filter" onclick="filterDossiers('En cours', this)">En cours</button>
+        <button class="btn-filter" onclick="filterDossiers('Clôturé', this)">Clôturés</button>
       </div>
       <div id="dossiers-list"></div>
-      <button class="fab" onclick="showNewDossier()">+</button>
     </div>
 
-    <div id="screen-dossier-form" class="screen-content hidden">
+    <!-- FORMULAIRE DOSSIER -->
+    <div id="screen-dossier-form" class="screen-content">
       <form id="dossier-form">
-        <div class="form-group">
-          <label>Agence / Département</label>
-          <input type="text" id="df-agence" placeholder="Ex: Amplepuis, BDD, Réseau Rhône...">
+        <input type="hidden" id="df-id" />
+        <div class="form-section">
+          <div class="form-section-title">Identification</div>
+          <div class="form-group">
+            <label>Agence / Site</label>
+            <input type="text" id="df-agence" placeholder="Ex: Agence Lyon Centre" />
+          </div>
+          <div class="form-group">
+            <label>Nature du dossier</label>
+            <select id="df-nature" required>
+              <option value="RPS / Harcèlement">RPS / Harcèlement</option>
+              <option value="Discrimination">Discrimination</option>
+              <option value="AT / Maladie professionnelle">AT / Maladie professionnelle</option>
+              <option value="Licenciement">Licenciement</option>
+              <option value="Inaptitude">Inaptitude</option>
+              <option value="Conflit managérial">Conflit managérial</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date des premiers faits</label>
+            <input type="date" id="df-date" />
+          </div>
+          <div class="form-group">
+            <label>Statut</label>
+            <select id="df-statut">
+              <option value="Ouvert">Ouvert</option>
+              <option value="En cours">En cours</option>
+              <option value="Transmis avocat">Transmis avocat</option>
+              <option value="Clôturé">Clôturé</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Nature du problème</label>
-          <select id="df-nature">
-            <option value="Pression commerciale / RPS">Pression commerciale / RPS</option>
-            <option value="Plan performance">Plan performance</option>
-            <option value="Harcèlement moral">Harcèlement moral</option>
-            <option value="Harcèlement sexuel">Harcèlement sexuel</option>
-            <option value="Discrimination">Discrimination</option>
-            <option value="Non-respect temps de travail">Non-respect temps de travail</option>
-            <option value="Accident du travail">Accident du travail</option>
-            <option value="Inaptitude / Maladie">Inaptitude / Maladie</option>
-            <option value="Réorganisation / Fermeture agence">Réorganisation / Fermeture agence</option>
-            <option value="Autre">Autre</option>
-          </select>
+        <div class="form-section">
+          <div class="form-section-title">🔒 Données confidentielles</div>
+          <div class="form-group">
+            <label>Description des faits</label>
+            <textarea id="df-faits" placeholder="Contexte, faits, personnes impliquées…" style="min-height:120px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Actions menées</label>
+            <textarea id="df-actions" placeholder="Entretiens, courriers, démarches…"></textarea>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Description des faits</label>
-          <textarea id="df-faits" rows="5" placeholder="Décrivez la situation..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Date des premiers faits</label>
-          <input type="date" id="df-date">
-        </div>
-        <div class="form-group">
-          <label>Actions menées</label>
-          <textarea id="df-actions" rows="3" placeholder="Ce que vous avez fait ou prévu..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Statut</label>
-          <select id="df-statut">
-            <option value="Ouvert">🔴 Ouvert</option>
-            <option value="En cours">🟡 En cours</option>
-            <option value="Transmis avocat">📤 Transmis avocat</option>
-            <option value="Clôturé">✅ Clôturé</option>
-          </select>
-        </div>
-        <div class="confidential-notice">🔒 Dossier strictement confidentiel. L'assistant ne remplace pas un conseil juridique professionnel.</div>
-        <input type="hidden" id="df-id">
-        <button type="submit" class="btn-primary btn-full">Enregistrer</button>
+        <button type="submit" class="btn-primary">💾 Enregistrer</button>
       </form>
     </div>
 
-    <div id="screen-assistant" class="screen-content hidden">
-      <div class="assistant-intro">
-        <p>Posez votre question juridique. L'assistant est contextualisé sur le Code du travail et le contexte CERA/BPCE.</p>
-        <p class="disclaimer">⚠️ Ne remplace pas un conseil juridique professionnel.</p>
-      </div>
-      <div id="chat-messages" class="chat-messages"></div>
-      <div class="chat-input-bar">
-        <textarea id="chat-input" placeholder="Votre question..." rows="2"></textarea>
-        <button id="btn-send" onclick="sendMessage()">➤</button>
+    <!-- ASSISTANT IA -->
+    <div id="screen-assistant" class="screen-content">
+      <div class="chat-container">
+        <div id="chat-messages">
+          <div class="msg-ai">👋 Bonjour ! Je suis votre assistant juridique SNE-CGC. Posez-moi vos questions sur le droit du travail, les prérogatives du CSE, la CSSCT ou les accords BPCE / CERA.</div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" id="chat-input" placeholder="Votre question juridique…" />
+          <button class="btn-send" onclick="sendMessage()">➤</button>
+        </div>
       </div>
     </div>
 
-    <div id="screen-docs" class="screen-content hidden">
-      <div class="docs-list">
-        <div class="doc-item" onclick="openDoc('code-travail')">
-          <span class="doc-icon">📖</span>
-          <div class="doc-info"><div class="doc-title">Code du travail</div><div class="doc-sub">Légifrance — Articles CSE/CSSCT</div></div>
+    <!-- DOCUMENTS -->
+    <div id="screen-docs" class="screen-content">
+      <div class="card">
+        <div class="card-title">📚 Références juridiques</div>
+        <div class="doc-grid">
+          <div class="doc-card" onclick="openDoc('code-travail')">
+            <div class="doc-icon">📖</div>
+            <div class="doc-name">Code du Travail</div>
+            <div class="doc-desc">Légifrance</div>
+          </div>
+          <div class="doc-card" onclick="openDoc('bpce')">
+            <div class="doc-icon">🏦</div>
+            <div class="doc-name">Accords BPCE</div>
+            <div class="doc-desc">Accords de branche</div>
+          </div>
+          <div class="doc-card" onclick="openDoc('snecgc')">
+            <div class="doc-icon">⚖️</div>
+            <div class="doc-name">SNE-CGC</div>
+            <div class="doc-desc">Site national</div>
+          </div>
+          <div class="doc-card" onclick="openDoc('cfecgc')">
+            <div class="doc-icon">📋</div>
+            <div class="doc-name">CFE-CGC</div>
+            <div class="doc-desc">Guides pratiques</div>
+          </div>
         </div>
-        <div class="doc-item" onclick="openDoc('bpce')">
-          <span class="doc-icon">🏦</span>
-          <div class="doc-info"><div class="doc-title">Accords branche BPCE</div><div class="doc-sub">Légifrance — Caisse d'Épargne</div></div>
-        </div>
-        <div class="doc-item" onclick="openDoc('snecgc')">
-          <span class="doc-icon">🔗</span>
-          <div class="doc-info"><div class="doc-title">Site SNE-CGC CEAPC</div><div class="doc-sub">snecgc-ceapc.fr</div></div>
-        </div>
-        <div class="doc-item" onclick="openDoc('cfecgc')">
-          <span class="doc-icon">⚖️</span>
-          <div class="doc-info"><div class="doc-title">CFE-CGC Ressources élus</div><div class="doc-sub">cfecgc.fr</div></div>
-        </div>
-      </div>
-      <div class="docs-memo">
-        <h3>📌 Délais légaux CSE</h3>
-        <ul>
-          <li><strong>Consultation standard</strong> : 1 mois</li>
-          <li><strong>Avec expert CSE</strong> : 2 mois</li>
-          <li><strong>Avec expert judiciaire</strong> : 3 mois</li>
-          <li><strong>Convocation</strong> : 3 jours ouvrés minimum</li>
-          <li><strong>PV CSSCT</strong> : transmis avant le CSE suivant</li>
-        </ul>
-        <h3>📌 Acronymes CERA</h3>
-        <ul>
-          <li><strong>DCMM</strong> : Directeur Commercial Multi-Marchés</li>
-          <li><strong>BDD</strong> : Banque De Détail</li>
-          <li><strong>AMM</strong> : Agence Multi-Marchés</li>
-          <li><strong>DA</strong> : Directeur d'Agence</li>
-          <li><strong>GC / GCP</strong> : Gestionnaire de Clientèle (Particuliers)</li>
-          <li><strong>CAPRO</strong> : Chargé d'Affaires Pro</li>
-          <li><strong>CAGP</strong> : Chargé d'Affaires Gestion Privée</li>
-          <li><strong>PNE</strong> : Personnel Non Encadrant</li>
-          <li><strong>BDESE</strong> : Base de Données Éco. Sociales et Environnementales</li>
-          <li><strong>DR / DRA</strong> : Directeur de Réseau / Adjoint</li>
-        </ul>
       </div>
     </div>
 
-    <nav class="bottom-nav">
-      <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-item active"><span>🏠</span><span>Accueil</span></button>
-      <button onclick="showScreen('reunions')" id="nav-reunions" class="nav-item"><span>📋</span><span>Réunions</span></button>
-      <button onclick="showScreen('dossiers')" id="nav-dossiers" class="nav-item"><span>⚖️</span><span>Dossiers</span></button>
-      <button onclick="showScreen('assistant')" id="nav-assistant" class="nav-item"><span>🤖</span><span>Assistant</span></button>
-      <button onclick="showScreen('docs')" id="nav-docs" class="nav-item"><span>📁</span><span>Docs</span></button>
-    </nav>
   </div>
 
-  <script src="app.js"></script>
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-dashboard" onclick="showScreen('dashboard')">
+      <span class="nav-icon">🏠</span>Accueil
+    </button>
+    <button class="nav-item" id="nav-reunions" onclick="showScreen('reunions')">
+      <span class="nav-icon">📅</span>Réunions
+    </button>
+    <button class="nav-item" id="nav-dossiers" onclick="showScreen('dossiers')">
+      <span class="nav-icon">📁</span>Dossiers
+    </button>
+    <button class="nav-item" id="nav-assistant" onclick="showScreen('assistant')">
+      <span class="nav-icon">🤖</span>Assistant
+    </button>
+    <button class="nav-item" id="nav-docs" onclick="showScreen('docs')">
+      <span class="nav-icon">📚</span>Docs
+    </button>
+  </nav>
+
+  <button class="btn-fab hidden" id="btn-fab" onclick="fabAction()">＋</button>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://tfiwxtxhiblmqzdlpulf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmaXd4dHhoaWJsbXF6ZGxwdWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDA0MDQsImV4cCI6MjA4OTMxNjQwNH0.lpGTaLCVyvovnNOcwce1R0Xh-9DSEIUUo4cZXUb939g';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUser = null;
+  let allReunions = [];
+  let allDossiers = [];
+  let currentScreen = 'dashboard';
+
+  // AUTH
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    document.getElementById('login-error').textContent = '';
+    const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      document.getElementById('login-error').textContent = 'Email ou mot de passe incorrect.';
+    } else {
+      currentUser = data.user;
+      showApp();
+    }
+  });
+
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await db.auth.signOut();
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('screen-login').style.display = 'flex';
+    document.getElementById('login-password').value = '';
+  });
+
+  async function checkSession() {
+    const { data } = await db.auth.getSession();
+    if (data.session) {
+      currentUser = data.session.user;
+      showApp();
+    }
+  }
+
+  function showApp() {
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('app').classList.remove('hidden');
+    loadDashboard();
+    showScreen('dashboard');
+  }
+
+  // NAVIGATION
+  const screenTitles = {
+    dashboard: 'Tableau de bord', reunions: 'Réunions',
+    'reunion-form': 'Nouvelle réunion', 'reunion-detail': 'Détail',
+    dossiers: 'Dossiers collaborateurs', 'dossier-form': 'Nouveau dossier',
+    assistant: 'Assistant juridique', docs: 'Documents & Références'
+  };
+
+  let screenHistory = ['dashboard'];
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen-content').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.getElementById('page-title').textContent = screenTitles[name] || name;
+    currentScreen = name;
+    if (name !== screenHistory[screenHistory.length - 1]) screenHistory.push(name);
+    document.getElementById('btn-back').classList.toggle('hidden', screenHistory.length <= 1);
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    const navMap = {
+      dashboard: 'nav-dashboard', reunions: 'nav-reunions',
+      'reunion-form': 'nav-reunions', 'reunion-detail': 'nav-reunions',
+      dossiers: 'nav-dossiers', 'dossier-form': 'nav-dossiers',
+      assistant: 'nav-assistant', docs: 'nav-docs'
+    };
+    if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+    document.getElementById('btn-fab').classList.toggle('hidden', name !== 'reunions' && name !== 'dossiers');
+    if (name === 'reunions') loadReunions();
+    if (name === 'dossiers') loadDossiers();
+  }
+
+  function fabAction() {
+    if (currentScreen === 'reunions') showNewReunion();
+    else if (currentScreen === 'dossiers') showNewDossier();
+  }
+
+  document.getElementById('btn-back').addEventListener('click', () => {
+    if (screenHistory.length > 1) {
+      screenHistory.pop();
+      const prev = screenHistory[screenHistory.length - 1];
+      screenHistory.pop();
+      showScreen(prev);
+    }
+  });
+
+  // DASHBOARD
+  async function loadDashboard() {
+    const {  reunions } = await db.from('reunions').select('*').order('date', { ascending: true });
+    const {  dossiers } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
+    allReunions = reunions || [];
+    allDossiers = dossiers || [];
+    document.getElementById('stat-reunions').textContent = allReunions.length;
+    document.getElementById('stat-dossiers').textContent = allDossiers.filter(d => d.statut === 'Ouvert' || d.statut === 'En cours').length;
+    const upcoming = allReunions.filter(r => r.statut === 'Planifiée').slice(0, 3);
+    document.getElementById('upcoming-list').innerHTML = upcoming.length
+      ? upcoming.map(r => `<div class="reunion-item" onclick="showReunionDetail('${r.id}')">
+          <div class="item-info"><div class="item-type">${r.type}</div><div class="item-date">${formatDate(r.date)} ${r.heure || ''}</div></div>
+          <div class="item-badge">📅</div></div>`).join('')
+      : '<p class="empty-state">Aucune réunion planifiée</p>';
+    const opened = allDossiers.filter(d => d.statut === 'Ouvert' || d.statut === 'En cours').slice(0, 3);
+    document.getElementById('open-dossiers-list').innerHTML = opened.length
+      ? opened.map(d => `<div class="dossier-item" onclick="showDossierDetail('${d.id}')">
+          <div class="item-info"><div class="item-type">${d.nature}</div><div class="item-title">${d.agence || 'Agence non précisée'}</div><div class="item-date">${formatDate(d.date_faits)}</div></div>
+          <div class="item-badge">${statutBadge(d.statut)}</div></div>`).join('')
+      : '<p class="empty-state">Aucun dossier en cours</p>';
+  }
+
+  // RÉUNIONS
+  async function loadReunions() {
+    const { data } = await db.from('reunions').select('*').order('date', { ascending: false });
+    allReunions = data || [];
+    renderReunions('all');
+  }
+
+  function renderReunions(filter) {
+    let items = filter === 'all' ? allReunions : allReunions.filter(r => r.type.includes(filter));
+    document.getElementById('reunions-list').innerHTML = items.length
+      ? items.map(r => `<div class="reunion-item" onclick="showReunionDetail('${r.id}')">
+          <div class="item-info"><div class="item-type">${r.type}</div>
+          <div class="item-title">${r.odj ? r.odj.substring(0, 55) + '…' : 'Pas d\'ordre du jour'}</div>
+          <div class="item-date">${formatDate(r.date)}</div></div>
+          <div class="item-badge">${statutBadge(r.statut)}</div></div>`).join('')
+      : '<p class="empty-state">Aucune réunion trouvée</p>';
+  }
+
+  function filterReunions(type, btn) {
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderReunions(type);
+  }
+
+  function showNewReunion() {
+    document.getElementById('reunion-form').reset();
+    document.getElementById('rf-id').value = '';
+    document.getElementById('rf-date').value = new Date().toISOString().split('T')[0];
+    showScreen('reunion-form');
+    document.getElementById('page-title').textContent = 'Nouvelle réunion';
+  }
+
+  document.getElementById('reunion-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('rf-id').value;
+    const payload = {
+      type: document.getElementById('rf-type').value,
+      date: document.getElementById('rf-date').value,
+      heure: document.getElementById('rf-heure').value,
+      odj: document.getElementById('rf-odj').value,
+      declaration: document.getElementById('rf-declaration').value,
+      notes: document.getElementById('rf-notes').value,
+      engagements: document.getElementById('rf-engagements').value,
+      alertes: document.getElementById('rf-alertes').value,
+      statut: document.getElementById('rf-statut').value,
+      user_id: currentUser.id
+    };
+    if (id) { await db.from('reunions').update(payload).eq('id', id); }
+    else { await db.from('reunions').insert([payload]); }
+    screenHistory = ['dashboard', 'reunions'];
+    showScreen('reunions');
+  });
+
+  function showReunionDetail(id) {
+    const r = allReunions.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('reunion-detail-content').innerHTML = `
+      <div class="detail-header">
+        <div class="detail-type">${r.type}</div>
+        <div class="detail-title">${formatDate(r.date)} ${r.heure || ''}</div>
+        <div class="detail-date">${statutBadge(r.statut)} ${r.statut}</div>
+      </div>
+      ${r.odj ? `<div class="detail-section"><h4>📌 Ordre du jour</h4><p>${r.odj}</p></div>` : ''}
+      ${r.declaration ? `<div class="detail-section"><h4>🎤 Déclaration préalable SNE-CGC</h4><p>${r.declaration}</p></div>` : ''}
+      ${r.notes ? `<div class="detail-section"><h4>📝 Notes de séance</h4><p>${r.notes}</p></div>` : ''}
+      ${r.engagements ? `<div class="detail-section"><h4>✅ Engagements direction</h4><p>${r.engagements}</p></div>` : ''}
+      ${r.alertes ? `<div class="detail-section"><h4>⚠️ Points d'alerte</h4><p>${r.alertes}</p></div>` : ''}
+      <div class="detail-actions">
+        <button class="btn-secondary" onclick="editReunion('${r.id}')">✏️ Modifier</button>
+        <button class="btn-danger" onclick="deleteReunion('${r.id}')">🗑️ Supprimer</button>
+      </div>`;
+    showScreen('reunion-detail');
+  }
+
+  function editReunion(id) {
+    const r = allReunions.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('rf-id').value = r.id;
+    document.getElementById('rf-type').value = r.type;
+    document.getElementById('rf-date').value = r.date;
+    document.getElementById('rf-heure').value = r.heure || '';
+    document.getElementById('rf-odj').value = r.odj || '';
+    document.getElementById('rf-declaration').value = r.declaration || '';
+    document.getElementById('rf-notes').value = r.notes || '';
+    document.getElementById('rf-engagements').value = r.engagements || '';
+    document.getElementById('rf-alertes').value = r.alertes || '';
+    document.getElementById('rf-statut').value = r.statut;
+    showScreen('reunion-form');
+    document.getElementById('page-title').textContent = 'Modifier réunion';
+  }
+
+  async function deleteReunion(id) {
+    if (confirm('Supprimer cette réunion ?')) {
+      await db.from('reunions').delete().eq('id', id);
+      screenHistory = ['dashboard', 'reunions'];
+      showScreen('reunions');
+    }
+  }
+
+  // DOSSIERS
+  async function loadDossiers() {
+    const { data } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
+    allDossiers = data || [];
+    renderDossiers('all');
+  }
+
+  function renderDossiers(filter) {
+    let items = filter === 'all' ? allDossiers : allDossiers.filter(d => d.statut === filter);
+    document.getElementById('dossiers-list').innerHTML = items.length
+      ? items.map(d => `<div class="dossier-item" onclick="showDossierDetail('${d.id}')">
+          <div class="item-info"><div class="item-type">${d.nature}</div>
+          <div class="item-title">${d.agence || 'Agence non précisée'}</div>
+          <div class="item-date">${formatDate(d.date_faits)}</div></div>
+          <div class="item-badge">${statutBadge(d.statut)}</div></div>`).join('')
+      : '<p class="empty-state">Aucun dossier trouvé</p>';
+  }
+
+  function filterDossiers(type, btn) {
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDossiers(type);
+  }
+
+  function showNewDossier() {
+    document.getElementById('dossier-form').reset();
+    document.getElementById('df-id').value = '';
+    document.getElementById('df-date').value = new Date().toISOString().split('T')[0];
+    showScreen('dossier-form');
+    document.getElementById('page-title').textContent = 'Nouveau dossier';
+  }
+
+  document.getElementById('dossier-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('df-id').value;
+    const payload = {
+      agence: document.getElementById('df-agence').value,
+      nature: document.getElementById('df-nature').value,
+      faits: document.getElementById('df-faits').value,
+      date_faits: document.getElementById('df-date').value,
+      actions: document.getElementById('df-actions').value,
+      statut: document.getElementById('df-statut').value,
+      user_id: currentUser.id
+    };
+    if (id) { await db.from('dossiers').update(payload).eq('id', id); }
+    else { await db.from('dossiers').insert([payload]); }
+    screenHistory = ['dashboard', 'dossiers'];
+    showScreen('dossiers');
+  });
+
+  function showDossierDetail(id) {
+    const d = allDossiers.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('reunion-detail-content').innerHTML = `
+      <div class="detail-header" style="background: var(--danger)">
+        <div class="detail-type">${d.nature}</div>
+        <div class="detail-title">${d.agence || 'Agence non précisée'}</div>
+        <div class="detail-date">${statutBadge(d.statut)} ${d.statut}</div>
+      </div>
+      ${d.faits ? `<div class="detail-section"><h4>📋 Description des faits</h4><p>${d.faits}</p></div>` : ''}
+      ${d.date_faits ? `<div class="detail-section"><h4>📅 Date des premiers faits</h4><p>${formatDate(d.date_faits)}</p></div>` : ''}
+      ${d.actions ? `<div class="detail-section"><h4>✅ Actions menées</h4><p>${d.actions}</p></div>` : ''}
+      <div class="confidential-notice">🔒 Dossier strictement confidentiel.</div>
+      <div class="detail-actions">
+        <button class="btn-secondary" onclick="editDossier('${d.id}')">✏️ Modifier</button>
+        <button class="btn-danger" onclick="deleteDossier('${d.id}')">🗑️ Supprimer</button>
+      </div>`;
+    showScreen('reunion-detail');
+  }
+
+  function editDossier(id) {
+    const d = allDossiers.find(x => x.id === id);
+    if (!d) return;
+    document.getElementById('df-id').value = d.id;
+    document.getElementById('df-agence').value = d.agence || '';
+    document.getElementById('df-nature').value = d.nature;
+    document.getElementById('df-faits').value = d.faits || '';
+    document.getElementById('df-date').value = d.date_faits || '';
+    document.getElementById('df-actions').value = d.actions || '';
+    document.getElementById('df-statut').value = d.statut;
+    showScreen('dossier-form');
+    document.getElementById('page-title').textContent = 'Modifier dossier';
+  }
+
+  async function deleteDossier(id) {
+    if (confirm('Supprimer ce dossier ?')) {
+      await db.from('dossiers').delete().eq('id', id);
+      screenHistory = ['dashboard', 'dossiers'];
+      showScreen('dossiers');
+    }
+  }
+
+  // ASSISTANT IA
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const question = input.value.trim();
+    if (!question) return;
+    appendMsg('user', question);
+    input.value = '';
+    const typing = appendMsg('ai', '⏳ Analyse en cours…', true);
+    try {
+      const res = await fetch('/.netlify/functions/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const data = await res.json();
+      typing.remove();
+      appendMsg('ai', data.answer || 'Aucune réponse reçue.');
+    } catch {
+      typing.remove();
+      appendMsg('ai', '❌ Erreur de connexion. Vérifiez votre réseau et réessayez.');
+    }
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  function appendMsg(role, text, typing = false) {
+    const div = document.createElement('div');
+    div.className = role === 'user' ? 'msg-user' : `msg-ai${typing ? ' msg-typing' : ''}`;
+    div.textContent = text;
+    document.getElementById('chat-messages').appendChild(div);
+    document.getElementById('chat-messages').scrollTop = 99999;
+    return div;
+  }
+
+  // DOCUMENTS
+  function openDoc(type) {
+    const urls = {
+      'code-travail': 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006072050/',
+      'bpce': 'https://www.legifrance.gouv.fr/search/acco?tab_selection=acco&searchField=ALL&query=caisse+epargne+rhone+alpes',
+      'snecgc': 'https://www.snecgc-ceapc.fr',
+      'cfecgc': 'https://www.cfecgc.fr/ressources/guides-pratiques/'
+    };
+    if (urls[type]) window.open(urls[type], '_blank');
+  }
+
+  // UTILITAIRES
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function statutBadge(statut) {
+    const b = { 'Planifiée':'📅','En cours':'🔄','Terminée':'✅','Ouvert':'🔴','Transmis avocat':'📤','Clôturé':'✅' };
+    return b[statut] || '•';
+  }
+
+  // INIT
+  checkSession();
+</script>
 </body>
 </html>
