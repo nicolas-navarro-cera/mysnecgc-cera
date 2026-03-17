@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MySNECGC">
+  <title>MySNECGC CERA</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <div id="screen-login" class="screen active">
+    <div class="login-container">
+      <div class="logo">
+        <div class="logo-icon">⚖️</div>
+        <h1>MySNECGC CERA</h1>
+        <p>Espace élu SNE-CGC</p>
+      </div>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Mot de passe" required>
+        <button type="submit" class="btn-primary">Se connecter</button>
+      </form>
+      <div id="login-error" class="error-msg"></div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <header>
+      <button id="btn-back" class="btn-back hidden">←</button>
+      <h2 id="page-title">Tableau de bord</h2>
+      <button id="btn-logout" class="btn-icon">⎋</button>
+    </header>
+
+    <div id="screen-dashboard" class="screen-content active">
+      <div class="dashboard-grid">
+        <div class="card card-reunions" onclick="showScreen('reunions')">
+          <div class="card-icon">📋</div>
+          <div class="card-label">Réunions</div>
+          <div class="card-sub">CSE &amp; CSSCT</div>
+        </div>
+        <div class="card card-dossiers" onclick="showScreen('dossiers')">
+          <div class="card-icon">⚖️</div>
+          <div class="card-label">Dossiers</div>
+          <div class="card-sub">Collaborateurs</div>
+        </div>
+        <div class="card card-assistant" onclick="showScreen('assistant')">
+          <div class="card-icon">🤖</div>
+          <div class="card-label">Assistant</div>
+          <div class="card-sub">Juridique IA</div>
+        </div>
+        <div class="card card-docs" onclick="showScreen('docs')">
+          <div class="card-icon">📁</div>
+          <div class="card-label">Documents</div>
+          <div class="card-sub">Référentiels</div>
+        </div>
+      </div>
+      <div class="upcoming-section">
+        <h3>Prochaines réunions</h3>
+        <div id="upcoming-list"><p class="empty-state">Aucune réunion planifiée</p></div>
+      </div>
+      <div class="upcoming-section">
+        <h3>Dossiers ouverts</h3>
+        <div id="open-dossiers-list"><p class="empty-state">Aucun dossier en cours</p></div>
+      </div>
+    </div>
+
+    <div id="screen-reunions" class="screen-content hidden">
+      <div class="action-bar">
+        <button class="btn-filter active" onclick="filterReunions('all',this)">Toutes</button>
+        <button class="btn-filter" onclick="filterReunions('CSE',this)">CSE</button>
+        <button class="btn-filter" onclick="filterReunions('CSSCT',this)">CSSCT</button>
+      </div>
+      <div id="reunions-list"></div>
+      <button class="fab" onclick="showNewReunion()">+</button>
+    </div>
+
+    <div id="screen-reunion-detail" class="screen-content hidden">
+      <div id="reunion-detail-content"></div>
+    </div>
+
+    <div id="screen-reunion-form" class="screen-content hidden">
+      <form id="reunion-form">
+        <div class="form-group">
+          <label>Type de réunion</label>
+          <select id="rf-type" required>
+            <option value="CSE Ordinaire">CSE Ordinaire</option>
+            <option value="CSE Extraordinaire">CSE Extraordinaire</option>
+            <option value="CSSCT">CSSCT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="rf-date" required>
+        </div>
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="time" id="rf-heure">
+        </div>
+        <div class="form-group">
+          <label>Ordre du jour</label>
+          <textarea id="rf-odj" rows="4" placeholder="Points de l'ordre du jour..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Déclaration préalable SNE-CGC</label>
+          <textarea id="rf-declaration" rows="4" placeholder="Déclaration d'ouverture..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Notes de séance</label>
+          <textarea id="rf-notes" rows="8" placeholder="Vos notes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Engagements direction</label>
+          <textarea id="rf-engagements" rows="3" placeholder="Engagements pris par la direction..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Points d'alerte</label>
+          <textarea id="rf-alertes" rows="3" placeholder="Points nécessitant une vigilance particulière..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select id="rf-statut">
+            <option value="Planifiée">📅 Planifiée</option>
+            <option value="En cours">🔄 En cours</option>
+            <option value="Terminée">✅ Terminée</option>
+          </select>
+        </div>
+        <input type="hidden" id="rf-id">
+        <button type="submit" class="btn-primary btn-full">Enregistrer</button>
+      </form>
+    </div>
+
+    <div id="screen-dossiers" class="screen-content hidden">
+      <div class="action-bar">
+        <button class="btn-filter active" onclick="filterDossiers('all',this)">Tous</button>
+        <button class="btn-filter" onclick="filterDossiers('Ouvert',this)">Ouverts</button>
+        <button class="btn-filter" onclick="filterDossiers('Clôturé',this)">Clôturés</button>
+      </div>
+      <div id="dossiers-list"></div>
+      <button class="fab" onclick="showNewDossier()">+</button>
+    </div>
+
+    <div id="screen-dossier-form" class="screen-content hidden">
+      <form id="dossier-form">
+        <div class="form-group">
+          <label>Agence / Département</label>
+          <input type="text" id="df-agence" placeholder="Ex: Amplepuis, BDD, Réseau Rhône...">
+        </div>
+        <div class="form-group">
+          <label>Nature du problème</label>
+          <select id="df-nature">
+            <option value="Pression commerciale / RPS">Pression commerciale / RPS</option>
+            <option value="Plan performance">Plan performance</option>
+            <option value="Harcèlement moral">Harcèlement moral</option>
+            <option value="Harcèlement sexuel">Harcèlement sexuel</option>
+            <option value="Discrimination">Discrimination</option>
+            <option value="Non-respect temps de travail">Non-respect temps de travail</option>
+            <option value="Accident du travail">Accident du travail</option>
+            <option value="Inaptitude / Maladie">Inaptitude / Maladie</option>
+            <option value="Réorganisation / Fermeture agence">Réorganisation / Fermeture agence</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description des faits</label>
+          <textarea id="df-faits" rows="5" placeholder="Décrivez la situation..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Date des premiers faits</label>
+          <input type="date" id="df-date">
+        </div>
+        <div class="form-group">
+          <label>Actions menées</label>
+          <textarea id="df-actions" rows="3" placeholder="Ce que vous avez fait ou prévu..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Statut</label>
+          <select id="df-statut">
+            <option value="Ouvert">🔴 Ouvert</option>
+            <option value="En cours">🟡 En cours</option>
+            <option value="Transmis avocat">📤 Transmis avocat</option>
+            <option value="Clôturé">✅ Clôturé</option>
+          </select>
+        </div>
+        <div class="confidential-notice">🔒 Dossier strictement confidentiel. L'assistant ne remplace pas un conseil juridique professionnel.</div>
+        <input type="hidden" id="df-id">
+        <button type="submit" class="btn-primary btn-full">Enregistrer</button>
+      </form>
+    </div>
+
+    <div id="screen-assistant" class="screen-content hidden">
+      <div class="assistant-intro">
+        <p>Posez votre question juridique. L'assistant est contextualisé sur le Code du travail et le contexte CERA/BPCE.</p>
+        <p class="disclaimer">⚠️ Ne remplace pas un conseil juridique professionnel.</p>
+      </div>
+      <div id="chat-messages" class="chat-messages"></div>
+      <div class="chat-input-bar">
+        <textarea id="chat-input" placeholder="Votre question..." rows="2"></textarea>
+        <button id="btn-send" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+
+    <div id="screen-docs" class="screen-content hidden">
+      <div class="docs-list">
+        <div class="doc-item" onclick="openDoc('code-travail')">
+          <span class="doc-icon">📖</span>
+          <div class="doc-info"><div class="doc-title">Code du travail</div><div class="doc-sub">Légifrance — Articles CSE/CSSCT</div></div>
+        </div>
+        <div class="doc-item" onclick="openDoc('bpce')">
+          <span class="doc-icon">🏦</span>
+          <div class="doc-info"><div class="doc-title">Accords branche BPCE</div><div class="doc-sub">Légifrance — Caisse d'Épargne</div></div>
+        </div>
+        <div class="doc-item" onclick="openDoc('snecgc')">
+          <span class="doc-icon">🔗</span>
+          <div class="doc-info"><div class="doc-title">Site SNE-CGC CEAPC</div><div class="doc-sub">snecgc-ceapc.fr</div></div>
+        </div>
+        <div class="doc-item" onclick="openDoc('cfecgc')">
+          <span class="doc-icon">⚖️</span>
+          <div class="doc-info"><div class="doc-title">CFE-CGC Ressources élus</div><div class="doc-sub">cfecgc.fr</div></div>
+        </div>
+      </div>
+      <div class="docs-memo">
+        <h3>📌 Délais légaux CSE</h3>
+        <ul>
+          <li><strong>Consultation standard</strong> : 1 mois</li>
+          <li><strong>Avec expert CSE</strong> : 2 mois</li>
+          <li><strong>Avec expert judiciaire</strong> : 3 mois</li>
+          <li><strong>Convocation</strong> : 3 jours ouvrés minimum</li>
+          <li><strong>PV CSSCT</strong> : transmis avant le CSE suivant</li>
+        </ul>
+        <h3>📌 Acronymes CERA</h3>
+        <ul>
+          <li><strong>DCMM</strong> : Directeur Commercial Multi-Marchés</li>
+          <li><strong>BDD</strong> : Banque De Détail</li>
+          <li><strong>AMM</strong> : Agence Multi-Marchés</li>
+          <li><strong>DA</strong> : Directeur d'Agence</li>
+          <li><strong>GC / GCP</strong> : Gestionnaire de Clientèle (Particuliers)</li>
+          <li><strong>CAPRO</strong> : Chargé d'Affaires Pro</li>
+          <li><strong>CAGP</strong> : Chargé d'Affaires Gestion Privée</li>
+          <li><strong>PNE</strong> : Personnel Non Encadrant</li>
+          <li><strong>BDESE</strong> : Base de Données Éco. Sociales et Environnementales</li>
+          <li><strong>DR / DRA</strong> : Directeur de Réseau / Adjoint</li>
+        </ul>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-item active"><span>🏠</span><span>Accueil</span></button>
+      <button onclick="showScreen('reunions')" id="nav-reunions" class="nav-item"><span>📋</span><span>Réunions</span></button>
+      <button onclick="showScreen('dossiers')" id="nav-dossiers" class="nav-item"><span>⚖️</span><span>Dossiers</span></button>
+      <button onclick="showScreen('assistant')" id="nav-assistant" class="nav-item"><span>🤖</span><span>Assistant</span></button>
+      <button onclick="showScreen('docs')" id="nav-docs" class="nav-item"><span>📁</span><span>Docs</span></button>
+    </nav>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
