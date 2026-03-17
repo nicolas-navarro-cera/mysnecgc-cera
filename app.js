@@ -1,7 +1,7 @@
-// CONFIG SUPABASE - à remplir après création du projet Supabase
 const SUPABASE_URL = 'https://tfiwxtxhiblmqzdlpulf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__Xdsf_yymPy8nJzDV-xScw_XJNPjiMR';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 let allReunions = [];
@@ -12,7 +12,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('login-email').value;
   const pass = document.getElementById('login-password').value;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
   if (error) {
     document.getElementById('login-error').textContent = 'Email ou mot de passe incorrect.';
   } else {
@@ -22,14 +22,14 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('btn-logout').addEventListener('click', async () => {
-  await supabase.auth.signOut();
+  await db.auth.signOut();
   document.getElementById('app').classList.add('hidden');
   document.getElementById('screen-login').classList.add('active');
   document.getElementById('screen-login').style.display = 'flex';
 });
 
 async function checkSession() {
-  const { data } = await supabase.auth.getSession();
+  const { data } = await db.auth.getSession();
   if (data.session) {
     currentUser = data.session.user;
     showApp();
@@ -85,8 +85,8 @@ document.getElementById('btn-back').addEventListener('click', () => {
 
 // ─── DASHBOARD ──────────────────────────────────────────
 async function loadDashboard() {
-  const {  reunions } = await supabase.from('reunions').select('*').order('date', { ascending: true });
-  const {  dossiers } = await supabase.from('dossiers').select('*').order('created_at', { ascending: false });
+  const { data: reunions } = await db.from('reunions').select('*').order('date', { ascending: true });
+  const { data: dossiers } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
 
   allReunions = reunions || [];
   allDossiers = dossiers || [];
@@ -119,7 +119,7 @@ async function loadDashboard() {
 
 // ─── RÉUNIONS ────────────────────────────────────────────
 async function loadReunions(filter = 'all') {
-  const { data } = await supabase.from('reunions').select('*').order('date', { ascending: false });
+  const { data } = await db.from('reunions').select('*').order('date', { ascending: false });
   allReunions = data || [];
   renderReunions(filter);
 }
@@ -170,9 +170,9 @@ document.getElementById('reunion-form').addEventListener('submit', async (e) => 
     user_id: currentUser.id
   };
   if (id) {
-    await supabase.from('reunions').update(payload).eq('id', id);
+    await db.from('reunions').update(payload).eq('id', id);
   } else {
-    await supabase.from('reunions').insert([payload]);
+    await db.from('reunions').insert([payload]);
   }
   screenHistory = ['dashboard', 'reunions'];
   showScreen('reunions');
@@ -219,7 +219,7 @@ function editReunion(id) {
 
 async function deleteReunion(id) {
   if (confirm('Supprimer cette réunion ?')) {
-    await supabase.from('reunions').delete().eq('id', id);
+    await db.from('reunions').delete().eq('id', id);
     screenHistory = ['dashboard', 'reunions'];
     showScreen('reunions');
   }
@@ -227,7 +227,7 @@ async function deleteReunion(id) {
 
 // ─── DOSSIERS ────────────────────────────────────────────
 async function loadDossiers(filter = 'all') {
-  const { data } = await supabase.from('dossiers').select('*').order('created_at', { ascending: false });
+  const { data } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
   allDossiers = data || [];
   renderDossiers(filter);
 }
@@ -275,9 +275,9 @@ document.getElementById('dossier-form').addEventListener('submit', async (e) => 
     user_id: currentUser.id
   };
   if (id) {
-    await supabase.from('dossiers').update(payload).eq('id', id);
+    await db.from('dossiers').update(payload).eq('id', id);
   } else {
-    await supabase.from('dossiers').insert([payload]);
+    await db.from('dossiers').insert([payload]);
   }
   screenHistory = ['dashboard', 'dossiers'];
   showScreen('dossiers');
@@ -320,7 +320,7 @@ function editDossier(id) {
 
 async function deleteDossier(id) {
   if (confirm('Supprimer ce dossier ?')) {
-    await supabase.from('dossiers').delete().eq('id', id);
+    await db.from('dossiers').delete().eq('id', id);
     screenHistory = ['dashboard', 'dossiers'];
     showScreen('dossiers');
   }
