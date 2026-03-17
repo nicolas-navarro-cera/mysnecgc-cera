@@ -1,8 +1,7 @@
 const SUPABASE_URL = 'https://tfiwxtxhiblmqzdlpulf.supabase.co';
-const SUPABASE_KEY = 'sb_publishable__Xdsf_yymPy8nJzDV-xScw_XJNPjiMR';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmaXd4dHhoaWJsbXF6ZGxwdWxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NDA0MDQsImV4cCI6MjA4OTMxNjQwNH0.lpGTaLCVyvovnNOcwce1R0Xh-9DSEIUUo4cZXUb939g';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 let currentUser = null;
 let allReunions = [];
 let allDossiers = [];
