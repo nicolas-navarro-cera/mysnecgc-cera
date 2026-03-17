@@ -36,6 +36,7 @@
     textarea { resize: vertical; min-height: 80px; }
     .btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.3px; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,95,0.3); }
+    .btn-primary:active { transform: translateY(0); }
     .btn-secondary { padding: 11px 20px; background: var(--bg); color: var(--navy); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .btn-secondary:hover { border-color: var(--navy-mid); background: white; }
     .btn-danger { padding: 11px 20px; background: var(--coral-pale); color: var(--coral); border: 1.5px solid rgba(232,84,106,0.2); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
@@ -104,8 +105,6 @@
     .confidential-notice { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; color: #92690a; text-align: center; margin-top: 10px; font-weight: 500; }
     .form-section { margin-bottom: 22px; }
     .form-section-title { font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
-    /* ── CR GÉNÉRÉ ── */
     .cr-container { background: white; border-radius: var(--radius); padding: 24px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 16px; }
     .cr-header { text-align: center; border-bottom: 2px solid var(--navy); padding-bottom: 16px; margin-bottom: 20px; }
     .cr-header h2 { font-size: 16px; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: 1px; }
@@ -118,7 +117,6 @@
     .cr-actions { display: flex; gap: 10px; margin-top: 16px; }
     .cr-actions button { flex: 1; }
     .cr-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f8f1; color: #27ae60; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; margin-bottom: 16px; }
-
     .chat-container { display: flex; flex-direction: column; height: calc(100vh - 170px); }
     #chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; }
     #chat-messages::-webkit-scrollbar { width: 4px; }
@@ -190,7 +188,6 @@
       .doc-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (min-width: 1280px) { .main-content { max-width: 980px; } }
-
     @media print {
       .top-bar, .bottom-nav, .btn-fab, .cr-actions, .detail-actions { display: none !important; }
       .main-content { margin: 0 !important; padding: 20px !important; }
@@ -236,7 +233,6 @@
 
   <div class="main-content">
 
-    <!-- DASHBOARD -->
     <div id="screen-dashboard" class="screen-content active">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-number" id="stat-reunions">—</div><div class="stat-label">Réunions totales</div></div>
@@ -250,7 +246,6 @@
       <div class="card"><div class="card-title">🔴 Dossiers en cours</div><div id="open-dossiers-list"><p class="empty-state">Chargement…</p></div></div>
     </div>
 
-    <!-- RÉUNIONS -->
     <div id="screen-reunions" class="screen-content">
       <div class="filter-bar">
         <button class="btn-filter active" onclick="filterReunions('all',this)">Toutes</button>
@@ -262,7 +257,6 @@
       <div id="reunions-list"></div>
     </div>
 
-    <!-- FORMULAIRE RÉUNION -->
     <div id="screen-reunion-form" class="screen-content">
       <form id="reunion-form">
         <input type="hidden" id="rf-id" />
@@ -300,15 +294,10 @@
       </form>
     </div>
 
-    <!-- DÉTAIL RÉUNION -->
     <div id="screen-reunion-detail" class="screen-content"><div id="reunion-detail-content"></div></div>
 
-    <!-- COMPTE-RENDU GÉNÉRÉ -->
-    <div id="screen-cr" class="screen-content">
-      <div id="cr-content"></div>
-    </div>
+    <div id="screen-cr" class="screen-content"><div id="cr-content"></div></div>
 
-    <!-- DOSSIERS -->
     <div id="screen-dossiers" class="screen-content">
       <div class="filter-bar">
         <button class="btn-filter active" onclick="filterDossiers('all',this)">Tous</button>
@@ -320,7 +309,6 @@
       <div id="dossiers-list"></div>
     </div>
 
-    <!-- FORMULAIRE DOSSIER -->
     <div id="screen-dossier-form" class="screen-content">
       <form id="dossier-form">
         <input type="hidden" id="df-id" />
@@ -357,7 +345,6 @@
       </form>
     </div>
 
-    <!-- ASSISTANT IA -->
     <div id="screen-assistant" class="screen-content">
       <div class="chat-container">
         <div id="chat-messages">
@@ -372,7 +359,6 @@
       </div>
     </div>
 
-    <!-- DOCUMENTS -->
     <div id="screen-docs" class="screen-content">
       <div class="card">
         <div class="card-title">📚 Références juridiques</div>
@@ -424,6 +410,7 @@
       showApp();
     } else if (event === 'SIGNED_OUT') {
       appShown = false;
+      currentUser = null;
       document.getElementById('app').classList.add('hidden');
       document.getElementById('screen-login').style.display = 'flex';
       document.getElementById('login-password').value = '';
@@ -445,11 +432,13 @@
     document.getElementById('screen-login').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
     showScreen('dashboard');
+    // ✅ loadDashboard appelé ici directement après onAuthStateChange — session garantie
+    loadDashboard();
   }
 
   const screenTitles = {
     dashboard:'Tableau de bord', reunions:'Réunions', 'reunion-form':'Nouvelle réunion',
-    'reunion-detail':'Détail réunion', 'cr':'Compte-Rendu généré',
+    'reunion-detail':'Détail réunion', cr:'Compte-Rendu généré',
     dossiers:'Dossiers collaborateurs', 'dossier-form':'Nouveau dossier',
     assistant:'Assistant juridique', docs:'Documents & Références'
   };
@@ -465,12 +454,13 @@
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     const navMap = {
       dashboard:'nav-dashboard', reunions:'nav-reunions', 'reunion-form':'nav-reunions',
-      'reunion-detail':'nav-reunions', 'cr':'nav-reunions',
+      'reunion-detail':'nav-reunions', cr:'nav-reunions',
       dossiers:'nav-dossiers', 'dossier-form':'nav-dossiers',
       assistant:'nav-assistant', docs:'nav-docs'
     };
     if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
     document.getElementById('btn-fab').classList.toggle('hidden', name !== 'reunions' && name !== 'dossiers');
+    // ✅ Rechargement à chaque navigation — dashboard inclus
     if (name === 'dashboard') loadDashboard();
     if (name === 'reunions')  loadReunions();
     if (name === 'dossiers')  loadDossiers();
@@ -482,7 +472,12 @@
   }
 
   document.getElementById('btn-back').addEventListener('click', () => {
-    if (screenHistory.length > 1) { screenHistory.pop(); const prev = screenHistory[screenHistory.length-1]; screenHistory.pop(); showScreen(prev); }
+    if (screenHistory.length > 1) {
+      screenHistory.pop();
+      const prev = screenHistory[screenHistory.length - 1];
+      screenHistory.pop();
+      showScreen(prev);
+    }
   });
 
   function statutPill(s) {
@@ -497,18 +492,25 @@
     return m[s] || `<span class="pill">${s}</span>`;
   }
 
+  // ✅ CORRECTION DASHBOARD : vérification session avant chaque requête
   async function loadDashboard() {
+    const {  { session } } = await db.auth.getSession();
+    if (!session) { setTimeout(() => loadDashboard(), 300); return; }
+
     const {  r } = await db.from('reunions').select('*').order('date', { ascending: true });
     const {  d } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
     allReunions = r || []; allDossiers = d || [];
+
     document.getElementById('stat-reunions').textContent   = allReunions.length;
     document.getElementById('stat-dossiers').textContent   = allDossiers.filter(x => x.statut==='Ouvert'||x.statut==='En cours').length;
     document.getElementById('stat-planifiees').textContent = allReunions.filter(x => x.statut==='Planifiée').length;
-    const up = allReunions.filter(x => x.statut==='Planifiée').slice(0,3);
+
+    const up = allReunions.filter(x => x.statut==='Planifiée').slice(0, 3);
     document.getElementById('upcoming-list').innerHTML = up.length
       ? up.map(x=>`<div class="reunion-item" onclick="showReunionDetail('${x.id}')"><div class="item-info"><div class="item-type">${x.type}</div><div class="item-date">${formatDate(x.date)} ${x.heure||''}</div></div><div class="item-badge">${statutPill(x.statut)}</div></div>`).join('')
       : '<p class="empty-state">Aucune réunion planifiée</p>';
-    const op = allDossiers.filter(x => x.statut==='Ouvert'||x.statut==='En cours').slice(0,3);
+
+    const op = allDossiers.filter(x => x.statut==='Ouvert'||x.statut==='En cours').slice(0, 3);
     document.getElementById('open-dossiers-list').innerHTML = op.length
       ? op.map(x=>`<div class="dossier-item" onclick="showDossierDetail('${x.id}')"><div class="item-info"><div class="item-type">${x.nature}</div><div class="item-title">${x.agence||'Agence non précisée'}</div><div class="item-date">${formatDate(x.date_faits)}</div></div><div class="item-badge">${statutPill(x.statut)}</div></div>`).join('')
       : '<p class="empty-state">Aucun dossier en cours</p>';
@@ -537,13 +539,13 @@
       engagements:document.getElementById('rf-engagements').value, alertes:document.getElementById('rf-alertes').value,
       statut:document.getElementById('rf-statut').value, user_id:currentUser.id
     };
-    if (id) await db.from('reunions').update(p).eq('id',id);
+    if (id) await db.from('reunions').update(p).eq('id', id);
     else await db.from('reunions').insert([p]);
-    screenHistory=['dashboard']; showScreen('dashboard');
+    screenHistory = ['dashboard']; showScreen('dashboard');
   });
 
   function showReunionDetail(id) {
-    const r = allReunions.find(x=>x.id===id); if(!r) return;
+    const r = allReunions.find(x=>x.id===id); if (!r) return;
     document.getElementById('reunion-detail-content').innerHTML = `
       <div class="detail-header">
         <div class="detail-type">${r.type}</div>
@@ -563,9 +565,25 @@
     showScreen('reunion-detail');
   }
 
-  // ✅ NOUVELLE FONCTION — Génération du CR par IA
+  function editReunion(id) {
+    const r = allReunions.find(x=>x.id===id); if (!r) return;
+    document.getElementById('rf-id').value=r.id; document.getElementById('rf-type').value=r.type;
+    document.getElementById('rf-date').value=r.date; document.getElementById('rf-heure').value=r.heure||'';
+    document.getElementById('rf-odj').value=r.odj||''; document.getElementById('rf-declaration').value=r.declaration||'';
+    document.getElementById('rf-notes').value=r.notes||''; document.getElementById('rf-engagements').value=r.engagements||'';
+    document.getElementById('rf-alertes').value=r.alertes||''; document.getElementById('rf-statut').value=r.statut;
+    showScreen('reunion-form'); document.getElementById('page-title').textContent='Modifier réunion';
+  }
+
+  async function deleteReunion(id) {
+    if (confirm('Supprimer cette réunion ?')) {
+      await db.from('reunions').delete().eq('id', id);
+      screenHistory = ['dashboard']; showScreen('dashboard');
+    }
+  }
+
   async function generateCR(id) {
-    const r = allReunions.find(x=>x.id===id); if(!r) return;
+    const r = allReunions.find(x=>x.id===id); if (!r) return;
     document.getElementById('cr-content').innerHTML = `
       <div class="cr-loading">
         <div class="cr-loading-icon">📝</div>
@@ -585,7 +603,7 @@
         <div class="cr-container">
           <div class="cr-header">
             <h2>Compte-Rendu — ${r.type}</h2>
-            <p>${formatDate(r.date)} ${r.heure ? '· ' + r.heure : ''}</p>
+            <p>${formatDate(r.date)}${r.heure ? ' · ' + r.heure : ''}</p>
           </div>
           <div class="cr-body" id="cr-text">${escapeHtml(cr)}</div>
         </div>
@@ -607,19 +625,6 @@
     return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
   }
 
-  function editReunion(id) {
-    const r = allReunions.find(x=>x.id===id); if(!r) return;
-    document.getElementById('rf-id').value=r.id; document.getElementById('rf-type').value=r.type;
-    document.getElementById('rf-date').value=r.date; document.getElementById('rf-heure').value=r.heure||'';
-    document.getElementById('rf-odj').value=r.odj||''; document.getElementById('rf-declaration').value=r.declaration||'';
-    document.getElementById('rf-notes').value=r.notes||''; document.getElementById('rf-engagements').value=r.engagements||'';
-    document.getElementById('rf-alertes').value=r.alertes||''; document.getElementById('rf-statut').value=r.statut;
-    showScreen('reunion-form'); document.getElementById('page-title').textContent='Modifier réunion';
-  }
-  async function deleteReunion(id) {
-    if (confirm('Supprimer cette réunion ?')) { await db.from('reunions').delete().eq('id',id); screenHistory=['dashboard']; showScreen('dashboard'); }
-  }
-
   async function loadDossiers() {
     const { data } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
     allDossiers = data || []; renderDossiers('all');
@@ -636,46 +641,67 @@
   document.getElementById('dossier-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('df-id').value;
-    const p = { agence:document.getElementById('df-agence').value, nature:document.getElementById('df-nature').value, faits:document.getElementById('df-faits').value, date_faits:document.getElementById('df-date').value, actions:document.getElementById('df-actions').value, statut:document.getElementById('df-statut').value, user_id:currentUser.id };
-    if (id) await db.from('dossiers').update(p).eq('id',id);
+    const p = {
+      agence:document.getElementById('df-agence').value, nature:document.getElementById('df-nature').value,
+      faits:document.getElementById('df-faits').value, date_faits:document.getElementById('df-date').value,
+      actions:document.getElementById('df-actions').value, statut:document.getElementById('df-statut').value,
+      user_id:currentUser.id
+    };
+    if (id) await db.from('dossiers').update(p).eq('id', id);
     else await db.from('dossiers').insert([p]);
-    screenHistory=['dashboard']; showScreen('dashboard');
+    screenHistory = ['dashboard']; showScreen('dashboard');
   });
 
   function showDossierDetail(id) {
-    const d = allDossiers.find(x=>x.id===id); if(!d) return;
+    const d = allDossiers.find(x=>x.id===id); if (!d) return;
     document.getElementById('reunion-detail-content').innerHTML = `
-      <div class="detail-header danger"><div class="detail-type">${d.nature}</div><div class="detail-title">${d.agence||'Agence non précisée'}</div><div class="detail-meta">${statutPill(d.statut)}</div></div>
+      <div class="detail-header danger">
+        <div class="detail-type">${d.nature}</div>
+        <div class="detail-title">${d.agence||'Agence non précisée'}</div>
+        <div class="detail-meta">${statutPill(d.statut)}</div>
+      </div>
       ${d.faits?`<div class="detail-section"><h4>📋 Description des faits</h4><p>${d.faits}</p></div>`:''}
       ${d.date_faits?`<div class="detail-section"><h4>📅 Date des premiers faits</h4><p>${formatDate(d.date_faits)}</p></div>`:''}
       ${d.actions?`<div class="detail-section"><h4>✅ Actions menées</h4><p>${d.actions}</p></div>`:''}
       <div class="confidential-notice">🔒 Dossier strictement confidentiel — SNE-CGC CERA</div>
-      <div class="detail-actions"><button class="btn-secondary" onclick="editDossier('${d.id}')">✏️ Modifier</button><button class="btn-danger" onclick="deleteDossier('${d.id}')">🗑️ Supprimer</button></div>`;
+      <div class="detail-actions">
+        <button class="btn-secondary" onclick="editDossier('${d.id}')">✏️ Modifier</button>
+        <button class="btn-danger" onclick="deleteDossier('${d.id}')">🗑️ Supprimer</button>
+      </div>`;
     showScreen('reunion-detail');
   }
+
   function editDossier(id) {
-    const d = allDossiers.find(x=>x.id===id); if(!d) return;
+    const d = allDossiers.find(x=>x.id===id); if (!d) return;
     document.getElementById('df-id').value=d.id; document.getElementById('df-agence').value=d.agence||'';
     document.getElementById('df-nature').value=d.nature; document.getElementById('df-faits').value=d.faits||'';
     document.getElementById('df-date').value=d.date_faits||''; document.getElementById('df-actions').value=d.actions||'';
     document.getElementById('df-statut').value=d.statut;
     showScreen('dossier-form'); document.getElementById('page-title').textContent='Modifier dossier';
   }
+
   async function deleteDossier(id) {
-    if (confirm('Supprimer ce dossier ?')) { await db.from('dossiers').delete().eq('id',id); screenHistory=['dashboard']; showScreen('dashboard'); }
+    if (confirm('Supprimer ce dossier ?')) {
+      await db.from('dossiers').delete().eq('id', id);
+      screenHistory = ['dashboard']; showScreen('dashboard');
+    }
   }
 
   async function sendMessage() {
     const input = document.getElementById('chat-input');
-    const question = input.value.trim(); if(!question) return;
-    appendMsg('user', question); input.value='';
-    const typing = appendMsg('ai','⏳ Recherche en cours…', true);
+    const question = input.value.trim(); if (!question) return;
+    appendMsg('user', question); input.value = '';
+    const typing = appendMsg('ai', '⏳ Recherche en cours…', true);
     try {
-      const res = await fetch('/.netlify/functions/assistant', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question}) });
+      const res = await fetch('/.netlify/functions/assistant', {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({question})
+      });
       const data = await res.json(); typing.remove(); appendMsg('ai', data.answer||'Aucune réponse générée.');
-    } catch { typing.remove(); appendMsg('ai','❌ Erreur de connexion.'); }
+    } catch { typing.remove(); appendMsg('ai', '❌ Erreur de connexion.'); }
   }
-  document.getElementById('chat-input').addEventListener('keydown', (e) => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
   function appendMsg(role, text, typing=false) {
     const div = document.createElement('div');
     div.className = role==='user' ? 'msg-user' : `msg-ai${typing?' msg-typing':''}`;
@@ -686,7 +712,12 @@
   }
 
   function openDoc(type) {
-    const urls = { 'code-travail':'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006072050/', 'bpce':'https://www.legifrance.gouv.fr/search/acco?tab_selection=acco&searchField=ALL&query=caisse+epargne+rhone+alpes', 'snecgc':'https://www.snecgc-cera.fr', 'cfecgc':'https://www.cfecgc.fr/ressources/guides-pratiques/' };
+    const urls = {
+      'code-travail':'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006072050/',
+      'bpce':'https://www.legifrance.gouv.fr/search/acco?tab_selection=acco&searchField=ALL&query=caisse+epargne+rhone+alpes',
+      'snecgc':'https://www.snecgc-cera.fr',
+      'cfecgc':'https://www.cfecgc.fr/ressources/guides-pratiques/'
+    };
     if (urls[type]) window.open(urls[type], '_blank');
   }
 
