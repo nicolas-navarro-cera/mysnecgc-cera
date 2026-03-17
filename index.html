@@ -12,117 +12,48 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --navy: #1e3a5f;
-      --navy-mid: #2d5a8e;
-      --navy-light: #4a7ab5;
-      --coral: #e8546a;
-      --coral-light: #f28096;
-      --coral-pale: #fdf0f2;
-      --bg: #f4f6fb;
-      --card: #ffffff;
-      --text: #1e3a5f;
-      --text-mid: #4a6080;
-      --text-light: #8a9bb5;
-      --border: #e8edf5;
-      --radius: 16px;
-      --radius-sm: 10px;
+      --navy: #1e3a5f; --navy-mid: #2d5a8e; --navy-light: #4a7ab5;
+      --coral: #e8546a; --coral-light: #f28096; --coral-pale: #fdf0f2;
+      --bg: #f4f6fb; --card: #ffffff; --text: #1e3a5f;
+      --text-mid: #4a6080; --text-light: #8a9bb5; --border: #e8edf5;
+      --radius: 16px; --radius-sm: 10px;
       --shadow: 0 4px 20px rgba(30,58,95,0.08);
       --shadow-md: 0 8px 32px rgba(30,58,95,0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-    #screen-login {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(145deg, var(--navy) 0%, var(--navy-mid) 60%, var(--navy-light) 100%);
-      padding: 24px; position: relative; overflow: hidden;
-    }
-    #screen-login::before {
-      content: ''; position: absolute;
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(232,84,106,0.2) 0%, transparent 70%);
-      top: -100px; right: -100px; border-radius: 50%;
-    }
-    #screen-login::after {
-      content: ''; position: absolute;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(74,122,181,0.2) 0%, transparent 70%);
-      bottom: -80px; left: -80px; border-radius: 50%;
-    }
-    .login-card {
-      background: rgba(255,255,255,0.97); border-radius: 28px;
-      padding: 40px 32px; width: 100%; max-width: 380px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.2); text-align: center;
-      position: relative; z-index: 1;
-    }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+    #screen-login { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(145deg, var(--navy) 0%, var(--navy-mid) 60%, var(--navy-light) 100%); padding: 24px; position: relative; overflow: hidden; }
+    #screen-login::before { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(232,84,106,0.2) 0%, transparent 70%); top: -100px; right: -100px; border-radius: 50%; }
+    #screen-login::after { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(74,122,181,0.2) 0%, transparent 70%); bottom: -80px; left: -80px; border-radius: 50%; }
+    .login-card { background: rgba(255,255,255,0.97); border-radius: 28px; padding: 40px 32px; width: 100%; max-width: 380px; box-shadow: 0 32px 80px rgba(0,0,0,0.2); text-align: center; position: relative; z-index: 1; }
     .login-logo-wrap { margin-bottom: 20px; }
     .login-logo-wrap img { width: 140px; height: auto; object-fit: contain; }
     .login-title { font-size: 13px; font-weight: 600; color: var(--text-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px; }
     .form-group { margin-bottom: 14px; text-align: left; }
     .form-group label { font-size: 12px; font-weight: 600; color: var(--text-light); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select, textarea {
-      width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); font-size: 15px; font-family: 'Inter', sans-serif;
-      background: var(--bg); color: var(--text); transition: all 0.2s; -webkit-appearance: none;
-    }
+    input, select, textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: all 0.2s; -webkit-appearance: none; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--navy-mid); background: #fff; box-shadow: 0 0 0 3px rgba(45,90,142,0.1); }
     textarea { resize: vertical; min-height: 80px; }
-    .btn-primary {
-      width: 100%; padding: 15px;
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      color: white; border: none; border-radius: var(--radius-sm);
-      font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
-      cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.3px;
-    }
+    .btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); color: white; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 8px; letter-spacing: 0.3px; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,95,0.3); }
     .btn-primary:active { transform: translateY(0); }
     .btn-secondary { padding: 11px 20px; background: var(--bg); color: var(--navy); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .btn-secondary:hover { border-color: var(--navy-mid); background: white; }
     .btn-danger { padding: 11px 20px; background: var(--coral-pale); color: var(--coral); border: 1.5px solid rgba(232,84,106,0.2); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .btn-danger:hover { background: #fde8eb; }
-    .btn-fab {
-      position: fixed; bottom: 90px; right: 20px;
-      width: 58px; height: 58px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--coral) 0%, var(--coral-light) 100%);
-      color: white; border: none; font-size: 28px; cursor: pointer;
-      box-shadow: 0 6px 24px rgba(232,84,106,0.4);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100; transition: all 0.2s;
-    }
+    .btn-fab { position: fixed; bottom: 90px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--coral) 0%, var(--coral-light) 100%); color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 6px 24px rgba(232,84,106,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; transition: all 0.2s; }
     .btn-fab:hover { transform: scale(1.08); }
     .error-msg { color: var(--coral); font-size: 13px; margin-top: 10px; min-height: 18px; font-weight: 500; }
     #app { display: flex; flex-direction: column; min-height: 100vh; }
     #app.hidden { display: none; }
-    .top-bar {
-      position: sticky; top: 0; z-index: 200; background: white;
-      display: flex; align-items: center; padding: 12px 20px; gap: 12px;
-      border-bottom: 1px solid var(--border); box-shadow: 0 2px 12px rgba(30,58,95,0.06);
-    }
+    .top-bar { position: sticky; top: 0; z-index: 200; background: white; display: flex; align-items: center; padding: 12px 20px; gap: 12px; border-bottom: 1px solid var(--border); box-shadow: 0 2px 12px rgba(30,58,95,0.06); }
     .top-bar-logo { height: 32px; width: auto; object-fit: contain; }
     .top-bar h1 { font-size: 16px; font-weight: 700; flex: 1; color: var(--navy); }
     .btn-icon { background: var(--bg); border: none; color: var(--text-mid); cursor: pointer; padding: 8px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .btn-icon:hover { background: var(--border); color: var(--navy); }
     .main-content { flex: 1; padding: 20px 16px; padding-bottom: 90px; }
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px; background: white; display: flex;
-      border-top: 1px solid var(--border); z-index: 200;
-      padding-bottom: env(safe-area-inset-bottom);
-      box-shadow: 0 -4px 20px rgba(30,58,95,0.06);
-    }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 10px 4px 8px; font-size: 10px; font-weight: 600; color: var(--text-light);
-      cursor: pointer; border: none; background: none; gap: 4px;
-      transition: all 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.3px;
-    }
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; border-top: 1px solid var(--border); z-index: 200; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(30,58,95,0.06); }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 8px; font-size: 10px; font-weight: 600; color: var(--text-light); cursor: pointer; border: none; background: none; gap: 4px; transition: all 0.2s; font-family: 'Inter', sans-serif; letter-spacing: 0.3px; }
     .nav-item .nav-icon { font-size: 20px; transition: transform 0.2s; }
     .nav-item.active { color: var(--navy); }
     .nav-item.active .nav-icon { transform: scale(1.1); }
@@ -140,12 +71,7 @@
     .stat-card:nth-child(3) .stat-number { font-size: 28px; }
     .card { background: var(--card); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1px solid var(--border); }
     .card-title { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-    .reunion-item, .dossier-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; background: var(--card); border-radius: var(--radius-sm);
-      margin-bottom: 10px; box-shadow: var(--shadow); border: 1px solid var(--border);
-      cursor: pointer; transition: all 0.2s;
-    }
+    .reunion-item, .dossier-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--card); border-radius: var(--radius-sm); margin-bottom: 10px; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
     .reunion-item:hover, .dossier-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--navy-light); }
     .item-info { flex: 1; }
     .item-type { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
@@ -199,7 +125,7 @@
     .hidden { display: none !important; }
 
     @media (min-width: 768px) {
-      body { max-width: 100%; display: flex; font-size: 15px; }
+      body { max-width: 100%; display: flex; }
       #screen-login { flex-direction: row; padding: 0; }
       #screen-login::before, #screen-login::after { display: none; }
       .login-left { flex: 1; background: linear-gradient(145deg, var(--navy) 0%, var(--navy-mid) 60%, var(--navy-light) 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; position: relative; overflow: hidden; }
@@ -246,9 +172,7 @@
       #reunions-list, #dossiers-list { grid-template-columns: 1fr; }
       .doc-grid { grid-template-columns: 1fr 1fr; }
     }
-    @media (min-width: 1280px) {
-      .main-content { max-width: 980px; }
-    }
+    @media (min-width: 1280px) { .main-content { max-width: 980px; } }
   </style>
 </head>
 <body>
@@ -288,7 +212,6 @@
   </div>
 
   <div class="main-content">
-
     <div id="screen-dashboard" class="screen-content active">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-number" id="stat-reunions">—</div><div class="stat-label">Réunions totales</div></div>
@@ -424,7 +347,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <nav class="bottom-nav" id="main-nav">
@@ -457,7 +379,6 @@
   let currentUser = null, allReunions = [], allDossiers = [], currentScreen = 'dashboard';
   let appShown = false;
 
-  // ✅ CORRECTION PRINCIPALE : onAuthStateChange remplace checkSession + setTimeout
   db.auth.onAuthStateChange((event, session) => {
     if (session && !appShown) {
       currentUser = session.user;
@@ -478,19 +399,14 @@
     document.getElementById('login-error').textContent = '';
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) { document.getElementById('login-error').textContent = 'Email ou mot de passe incorrect.'; }
-    // showApp() sera appelé automatiquement par onAuthStateChange
   });
 
-  document.getElementById('btn-logout').addEventListener('click', async () => {
-    await db.auth.signOut();
-    // onAuthStateChange gère le reste
-  });
+  document.getElementById('btn-logout').addEventListener('click', async () => { await db.auth.signOut(); });
 
   function showApp() {
     document.getElementById('screen-login').style.display = 'none';
     document.getElementById('app').classList.remove('hidden');
     showScreen('dashboard');
-    loadDashboard();
   }
 
   const screenTitles = {
@@ -511,6 +427,8 @@
     const navMap = { dashboard:'nav-dashboard', reunions:'nav-reunions', 'reunion-form':'nav-reunions', 'reunion-detail':'nav-reunions', dossiers:'nav-dossiers', 'dossier-form':'nav-dossiers', assistant:'nav-assistant', docs:'nav-docs' };
     if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
     document.getElementById('btn-fab').classList.toggle('hidden', name !== 'reunions' && name !== 'dossiers');
+    // ✅ CORRECTION : rechargement à chaque navigation vers ces écrans
+    if (name === 'dashboard') loadDashboard();
     if (name === 'reunions') loadReunions();
     if (name === 'dossiers') loadDossiers();
   }
@@ -572,7 +490,8 @@
     const payload = { type:document.getElementById('rf-type').value, date:document.getElementById('rf-date').value, heure:document.getElementById('rf-heure').value, odj:document.getElementById('rf-odj').value, declaration:document.getElementById('rf-declaration').value, notes:document.getElementById('rf-notes').value, engagements:document.getElementById('rf-engagements').value, alertes:document.getElementById('rf-alertes').value, statut:document.getElementById('rf-statut').value, user_id:currentUser.id };
     if (id) { await db.from('reunions').update(payload).eq('id', id); }
     else { await db.from('reunions').insert([payload]); }
-    screenHistory = ['dashboard','reunions']; showScreen('reunions');
+    // ✅ Retour au dashboard pour voir la mise à jour immédiate
+    screenHistory = ['dashboard']; showScreen('dashboard');
   });
 
   function showReunionDetail(id) {
@@ -593,7 +512,7 @@
     showScreen('reunion-form'); document.getElementById('page-title').textContent='Modifier réunion';
   }
   async function deleteReunion(id) {
-    if (confirm('Supprimer cette réunion ?')) { await db.from('reunions').delete().eq('id',id); screenHistory=['dashboard','reunions']; showScreen('reunions'); }
+    if (confirm('Supprimer cette réunion ?')) { await db.from('reunions').delete().eq('id',id); screenHistory=['dashboard']; showScreen('dashboard'); }
   }
 
   async function loadDossiers() {
@@ -615,7 +534,8 @@
     const payload = { agence:document.getElementById('df-agence').value, nature:document.getElementById('df-nature').value, faits:document.getElementById('df-faits').value, date_faits:document.getElementById('df-date').value, actions:document.getElementById('df-actions').value, statut:document.getElementById('df-statut').value, user_id:currentUser.id };
     if (id) { await db.from('dossiers').update(payload).eq('id', id); }
     else { await db.from('dossiers').insert([payload]); }
-    screenHistory = ['dashboard','dossiers']; showScreen('dossiers');
+    // ✅ Retour au dashboard pour voir la mise à jour immédiate
+    screenHistory = ['dashboard']; showScreen('dashboard');
   });
 
   function showDossierDetail(id) {
@@ -635,7 +555,7 @@
     showScreen('dossier-form'); document.getElementById('page-title').textContent='Modifier dossier';
   }
   async function deleteDossier(id) {
-    if (confirm('Supprimer ce dossier ?')) { await db.from('dossiers').delete().eq('id',id); screenHistory=['dashboard','dossiers']; showScreen('dossiers'); }
+    if (confirm('Supprimer ce dossier ?')) { await db.from('dossiers').delete().eq('id',id); screenHistory=['dashboard']; showScreen('dashboard'); }
   }
 
   async function sendMessage() {
@@ -665,7 +585,7 @@
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'});
+    return new Date(dateStr).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
   }
 </script>
 </body>
