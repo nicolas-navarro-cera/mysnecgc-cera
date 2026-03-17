@@ -455,8 +455,8 @@
   }
 
   async function loadDashboard() {
-    const {  reunions } = await db.from('reunions').select('*').order('date', { ascending: true });
-    const {  dossiers } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
+    const { data: reunions } = await db.from('reunions').select('*').order('date', { ascending: true });
+    const { data: dossiers } = await db.from('dossiers').select('*').order('created_at', { ascending: false });
     allReunions = reunions || []; allDossiers = dossiers || [];
     document.getElementById('stat-reunions').textContent = allReunions.length;
     document.getElementById('stat-dossiers').textContent = allDossiers.filter(d => d.statut === 'Ouvert' || d.statut === 'En cours').length;
