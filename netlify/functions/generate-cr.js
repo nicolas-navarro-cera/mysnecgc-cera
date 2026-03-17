@@ -1,17 +1,13 @@
-const fetch = require('node-fetch');
-
 const STYLE_TEMPLATE = `
 Tu es un rédacteur expert de comptes-rendus de CSE pour la Caisse d'Épargne Rhône-Alpes (CERA), section SNE-CGC.
 
-STYLE RÉDACTIONNEL À RESPECTER (basé sur le modèle SNE-CGC CERA) :
+STYLE RÉDACTIONNEL À RESPECTER :
 - En-tête avec : type de réunion, date, heure, lieu
-- Participants listés (Présidents, élus titulaires, suppléants, invités)
-- Déclaration préalable de la délégation SNE-CGC (si présente) rédigée en style formel
+- Déclaration préalable de la délégation SNE-CGC rédigée en style formel
 - Pour chaque point de l'ordre du jour : titre numéroté, présentation direction, questions/réponses des élus, vote si applicable
 - Ton professionnel et factuel, à la 3ème personne ("La direction indique que...", "Les élus s'interrogent sur...", "La délégation SNE-CGC soulève...")
 - Engagements de la direction encadrés clairement
 - Clôture de séance avec heure de fin
-- Style sobre, structuré, paragraphes courts
 - Formules types : "La direction rappelle que...", "Suite aux échanges...", "La délégation SNE-CGC prend acte de...", "À l'unanimité / À la majorité..."
 `;
 
@@ -41,21 +37,22 @@ ENGAGEMENTS DIRECTION :
 ${reunion.engagements || 'Aucun engagement noté'}
 
 POINTS D'ALERTE / SUIVI :
-${reunion.alertes || 'Aucun point d\'alerte'}
+${reunion.alertes || "Aucun point d'alerte"}
 
-Rédige un compte-rendu complet, structuré et professionnel en t'appuyant sur ces éléments.
+Rédige un compte-rendu complet, structuré et professionnel.
 Si certaines informations manquent, indique [À compléter] à l'emplacement correspondant.
 `;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // ✅ Groq API — fetch natif Node 18+, aucune dépendance
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: STYLE_TEMPLATE },
           { role: 'user', content: userPrompt }
@@ -67,12 +64,16 @@ Si certaines informations manquent, indique [À compléter] à l'emplacement cor
 
     const data = await response.json();
     const cr = data.choices?.[0]?.message?.content || 'Impossible de générer le CR.';
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cr })
     };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
   }
 };
